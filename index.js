@@ -1,3 +1,8 @@
+const http = require("http");
+
+http.createServer((req, res) => {
+  res.end("OK");
+}).listen(8000);
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
 const client = new Client({
