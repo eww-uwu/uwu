@@ -21,7 +21,7 @@ const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 (async () => {
   try {
     await rest.put(
-      Routes.applicationCommands("あなたのBotのID"),
+      Routes.applicationCommands("1453157344551764069"),
       { body: commands }
     );
     console.log("✅ スラッシュコマンド登録完了");
