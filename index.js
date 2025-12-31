@@ -48,15 +48,18 @@ const client = new Client({
 client.on("ready", async () => {
   console.log(`ログイン完了: ${client.user.tag}`);
 
+  // 1秒待つ（重要）
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
   const guild = client.guilds.cache.first();
   const guildInvites = await guild.invites.fetch();
 
   guildInvites.forEach(inv => invites.set(inv.code, inv.uses));
-  console.log("招待リンクの使用回数を記録しました");
+  console.log("Invitation usage has been recorded ");
 });
 
 // ===============================
-// 招待リンクが使われたら削除
+// 招待リンクが使われたら
 // ===============================
 client.on("guildMemberAdd", async member => {
   const guild = member.guild;
