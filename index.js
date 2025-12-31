@@ -2,7 +2,7 @@ const http = require("http");
 
 http.createServer((req, res) => {
   res.end("OK");
-}).listen(8000);
+).listen(process.env.PORT || 8000, '0.0.0.0');
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
 const client = new Client({
