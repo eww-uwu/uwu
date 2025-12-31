@@ -1,10 +1,16 @@
 const http = require("http");
-
-http.createServer((req, res) => {
-  res.end("OK");
-).listen(process.env.PORT || 8000, '0.0.0.0');
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
+// 環境変数PORTを使用し、HTTPサーバーをセットアップ
+const PORT = process.env.PORT || 8000;
+
+http.createServer((req, res) => {
+  res.end("Bot is running!");
+}).listen(PORT, '0.0.0.0', () => {
+  console.log(`HTTP server listening on port ${PORT}`);
+});
+
+// Discordクライアントのセットアップ
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -27,16 +33,7 @@ client.on("messageCreate", async (message) => {
   }
 
   if (message.guild) return;
-
-  if (message.content.startsWith("!send")) {
-    const text = message.content.replace("!send", "").trim();
-
-    const targetChannelId = "1452029983961649243";
-    const targetChannel = await client.channels.fetch(targetChannelId);
-
-    await targetChannel.send(text);
-    message.reply("Your token has been sent");
-  }
 });
 
-client.login(process.env.TOKEN);
+// Discordへのログイン処理（Koyebの環境変数 DISCORD_TOKEN を使用）
+client.login(process.env.DISCORD_TOKEN);
