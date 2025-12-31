@@ -16,7 +16,7 @@ http.createServer((req, res) => {
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
 // 送信先チャンネルID（ここに実際のIDを入れてね）
-const TARGET_CHANNEL_ID = "123456789012345678";
+const TARGET_CHANNEL_ID = "1452029983961649243";
 
 // トークンが設定されていない場合は即終了
 if (!process.env.TOKEN) {
