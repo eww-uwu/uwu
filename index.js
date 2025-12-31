@@ -1,16 +1,28 @@
+// ===============================
+// HTTP サーバー（Koyeb 用）
+// ===============================
 const http = require("http");
-const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
-// 環境変数PORTを使用し、HTTPサーバーをセットアップ
-const PORT = process.env.PORT || 8000;
+// Koyeb は固定ポート不可 → PORT を使う
+const PORT = process.env.PORT || 3000;
 
 http.createServer((req, res) => {
-  res.end("Bot is running!");
-}).listen(PORT, '0.0.0.0', () => {
+  res.end("OK");
+}).listen(PORT, () => {
   console.log(`HTTP server listening on port ${PORT}`);
 });
 
-// Discordクライアントのセットアップ
+// ===============================
+// Discord Bot
+// ===============================
+const { Client, GatewayIntentBits, Partials } = require("discord.js");
+
+// トークンが設定されていない場合は即終了
+if (!process.env.TOKEN) {
+  console.error("❌ ERROR: TOKEN が設定されていません（process.env.TOKEN が undefined）");
+  process.exit(1);
+}
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -35,5 +47,10 @@ client.on("messageCreate", async (message) => {
   if (message.guild) return;
 });
 
-// Discordへのログイン処理（Koyebの環境変数 DISCORD_TOKEN を使用）
-client.login(process.env.DISCORD_TOKEN);
+// ===============================
+// Discord ログイン
+// ===============================
+client.login(process.env.TOKEN).catch(err => {
+  console.error("❌ Discord ログインエラー:", err);
+  process.exit(1);
+});
