@@ -62,6 +62,8 @@ client.on("ready", async () => {
 // 招待リンクが使われたら
 // ===============================
 client.on("guildMemberAdd", async member => {
+  console.log("guildMemberAdd fired:", member.user.tag);
+
   const guild = member.guild;
   const newInvites = await guild.invites.fetch();
 
