@@ -21,9 +21,6 @@ const TARGET_CHANNEL_ID = "1452029983961649243";
 // 使っていいロールID
 const ALLOWED_ROLE_ID = "1448702292982501570";
 
-// 招待リンクの使用回数を保存するマップ
-const invites = new Map();
-
 // トークンが設定されていない場合は即終了
 if (!process.env.TOKEN) {
   console.error("❌ ERROR: TOKEN が設定されていません（process.env.TOKEN が undefined）");
@@ -52,41 +49,15 @@ client.on("ready", async () => {
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   const guild = client.guilds.cache.first();
-  const guildInvites = await guild.invites.fetch();
-
-  guildInvites.forEach(inv => invites.set(inv.code, inv.uses));
-  console.log("Invitation usage has been recorded ");
+  await guild.invites.fetch(); // 初期化だけしておく
+  console.log("招待リンクの使用回数を記録しました");
 });
 
 // ===============================
-// 招待リンクが使われたら
+// メンバー参加ログのみ
 // ===============================
 client.on("guildMemberAdd", async member => {
   console.log("guildMemberAdd fired:", member.user.tag);
-
-  // 0.5〜1秒待つ（重要）
-  await new Promise(resolve => setTimeout(resolve, 800));
-
-  const guild = member.guild;
-  const newInvites = await guild.invites.fetch();
-
-  newInvites.forEach(async inv => {
-    const oldUses = invites.get(inv.code);
-    if (oldUses === undefined) return;
-
-    if (inv.uses > oldUses) {
-      console.log(`招待リンク ${inv.code} が使われました`);
-
-      try {
-        await inv.delete();
-        console.log(`招待リンク ${inv.code} を削除しました`);
-      } catch (err) {
-        console.error("招待リンク削除エラー:", err);
-      }
-    }
-
-    invites.set(inv.code, inv.uses);
-  });
 });
 
 // ===============================
