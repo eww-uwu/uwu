@@ -64,6 +64,9 @@ client.on("ready", async () => {
 client.on("guildMemberAdd", async member => {
   console.log("guildMemberAdd fired:", member.user.tag);
 
+  // 0.5〜1秒待つ（重要）
+  await new Promise(resolve => setTimeout(resolve, 800));
+
   const guild = member.guild;
   const newInvites = await guild.invites.fetch();
 
