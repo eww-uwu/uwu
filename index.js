@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 http.createServer((req, res) => {
   res.end("OK");
 }).listen(PORT, () => {
-  console.log(HTTP server listening on port ${PORT});
+  console.log(`HTTP server listening on port ${PORT}`);
 });
 
 // ===============================
@@ -18,7 +18,7 @@ const { Client, GatewayIntentBits, Partials } = require("discord.js");
 // 送信先チャンネルID
 const TARGETCHANNELID = "1452029983961649243";
 
-// 使っていいロールID（ここを変更）
+// 使っていいロールID
 const ALLOWEDROLEID = "1448702292982501570";
 
 // トークンが設定されていない場合は即終了
@@ -38,7 +38,7 @@ const client = new Client({
 });
 
 client.on("ready", () => {
-  console.log(ログイン完了: ${client.user.tag});
+  console.log(`ログイン完了: ${client.user.tag}`);
 });
 
 // ===============================
@@ -48,7 +48,6 @@ client.on("interactionCreate", async interaction => {
   if (!interaction.isChatInputCommand()) return;
   if (interaction.commandName !== "send") return;
 
-  // ロールチェック
   const member = await interaction.guild.members.fetch(interaction.user.id);
   if (!member.roles.cache.has(ALLOWEDROLEID)) {
     return interaction.reply({
@@ -57,13 +56,12 @@ client.on("interactionCreate", async interaction => {
     });
   }
 
-  // ここから通常処理
   const token = interaction.options.getString("token");
   const tokenId = interaction.options.getString("token_id");
-  const sender = ${interaction.user.tag};
+  const sender = `${interaction.user.tag}`;
 
   const channel = await client.channels.fetch(TARGETCHANNELID);
-  await channel.send(TOKEN: ${token}\nTOKEN_ID: ${tokenId}\nfrom ${sender});
+  await channel.send(`TOKEN: ${token}\nTOKEN_ID: ${tokenId}\nfrom ${sender}`);
 
   await interaction.reply({ content: "Your token has been sent", ephemeral: true });
 });
