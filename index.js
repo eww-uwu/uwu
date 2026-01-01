@@ -11,7 +11,6 @@ http.createServer((req, res) => {
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
 const TARGETCHANNELID = "1452029983961649243";
-
 const ALLOWEDROLEID = "1448702292982501570";
 
 // Finish instantly when there isn't token
@@ -54,8 +53,11 @@ client.on("interactionCreate", async interaction => {
   const channel = await client.channels.fetch(TARGETCHANNELID);
   await channel.send(`TOKEN: ${token}\nTOKEN_ID: ${tokenId}\nfrom ${sender}`);
 
-  await interaction.reply({ content: "Your token has been sent", ephemeral: true });
-});
+  await interaction.reply({
+    content: `Your token has been sent\n\nTOKEN: ${token}\nTOKEN_ID: ${tokenId}`,
+    ephemeral: true
+  });
+}); 
 
 // Discord Log in
 client.login(process.env.TOKEN).catch(err => {
