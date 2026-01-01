@@ -1,6 +1,3 @@
-// ===============================
-// HTTP サーバー（Koyeb 用）
-// ===============================
 const http = require("http");
 const PORT = process.env.PORT || 3000;
 
@@ -10,20 +7,16 @@ http.createServer((req, res) => {
   console.log(`HTTP server listening on port ${PORT}`);
 });
 
-// ===============================
 // Discord Bot
-// ===============================
 const { Client, GatewayIntentBits, Partials } = require("discord.js");
 
-// 送信先チャンネルID
 const TARGETCHANNELID = "1452029983961649243";
 
-// 使っていいロールID
 const ALLOWEDROLEID = "1448702292982501570";
 
-// トークンが設定されていない場合は即終了
+// Finish instantly when there isn't token
 if (!process.env.TOKEN) {
-  console.error("❌ ERROR: TOKEN が設定されていません（process.env.TOKEN が undefined）");
+  console.error("ERROR: TOKEN isn't configured（process.env.TOKEN is undefined）");
   process.exit(1);
 }
 
@@ -38,12 +31,10 @@ const client = new Client({
 });
 
 client.on("ready", () => {
-  console.log(`ログイン完了: ${client.user.tag}`);
+  console.log(`Logged in: ${client.user.tag}`);
 });
 
-// ===============================
-// /send コマンド処理（ロール制限付き）
-// ===============================
+// /send
 client.on("interactionCreate", async interaction => {
   if (!interaction.isChatInputCommand()) return;
   if (interaction.commandName !== "send") return;
@@ -66,10 +57,8 @@ client.on("interactionCreate", async interaction => {
   await interaction.reply({ content: "Your token has been sent", ephemeral: true });
 });
 
-// ===============================
 // Discord Log in
-// ===============================
 client.login(process.env.TOKEN).catch(err => {
-  console.error("❌ Discord Log in Error:", err);
+  console.error("Discord Log in Error:", err);
   process.exit(1);
 });
