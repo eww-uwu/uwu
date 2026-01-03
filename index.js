@@ -1,3 +1,8 @@
+require("dotenv").config();
+require("http").createServer((req, res) => {
+  res.writeHead(200);
+  res.end("Bot is running");
+}).listen(8000);
 const { Client, GatewayIntentBits, Partials, ActionRowBuilder, ButtonBuilder, ButtonStyle, Events } = require('discord.js');
 require('dotenv').config();
 
