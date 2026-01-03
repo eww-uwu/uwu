@@ -74,11 +74,15 @@ client.on(Events.InteractionCreate, async interaction => {
         });
       }
 
-      // 全体公開で送信
-      await sendChannel.send({
-        embeds: [embed],
-        components: [row]
-      });
+// 全体公開で送信（送信したメッセージを取得）
+const sentMessage = await sendChannel.send({
+  embeds: [embed],
+  components: [row]
+});
+
+// メッセージリンクをキャッシュに保存
+client.cache[uniqueId].messageLink =
+  `https://discord.com/channels/${interaction.guildId}/${sendChannel.id}/${sentMessage.id}`;
 
       // コマンド実行者には完了メッセージ（reply は1回だけ）
       return interaction.reply({
@@ -102,18 +106,19 @@ client.on(Events.InteractionCreate, async interaction => {
       });
     }
 
-    // ログ送信（fetchで確実に取得）
-    try {
-      const logChannel = await client.channels.fetch(process.env.LOG_CHANNEL_ID);
-      await logChannel.send(
-        `[COPY LOG]\n` +
-        `User: ${interaction.user.tag}\n` +
-        `Copied: ${type.toUpperCase()}\n` +
-        `Time: <t:${Math.floor(Date.now() / 1000)}:F>`
-      );
-    } catch (e) {
-      console.log("Log channel fetch failed:", e);
-    }
+// ログ送信（fetchで確実に取得）
+try {
+  const logChannel = await client.channels.fetch(process.env.LOG_CHANNEL_ID);
+await logChannel.send(
+  `[COPY LOG]\n` +
+  `User: ${interaction.user.tag}\n` +
+  `Copied: ${type.toUpperCase()}\n` +
+  `Message: ${data.messageLink}\n` +   // ← 追加
+  `Time: <t:${Math.floor(Date.now() / 1000)}:F>`
+);
+} catch (e) {
+  console.log("Log channel fetch failed:", e);
+}
 
     // 本物を本人だけに表示
     if (type === 'token') {
