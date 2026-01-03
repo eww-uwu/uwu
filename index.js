@@ -63,12 +63,14 @@ client.on(Events.InteractionCreate, async interaction => {
         )
         .setColor("Blue");
 
-      // 送信先チャンネル
-      const sendChannel = client.channels.cache.get(process.env.SEND_CHANNEL_ID);
-      if (!sendChannel) {
+      // fetch で確実にチャンネル取得
+      let sendChannel;
+      try {
+        sendChannel = await client.channels.fetch(process.env.SEND_CHANNEL_ID);
+      } catch (e) {
         return interaction.reply({
           content: "Channel is not found",
-          ephemeral: true
+          flags: 64
         });
       }
 
@@ -78,10 +80,10 @@ client.on(Events.InteractionCreate, async interaction => {
         components: [row]
       });
 
-      // コマンド実行者には完了メッセージ
+      // コマンド実行者には完了メッセージ（reply は1回だけ）
       return interaction.reply({
         content: "Your token has been sent",
-        ephemeral: true
+        flags: 64
       });
     }
   }
@@ -95,34 +97,36 @@ client.on(Events.InteractionCreate, async interaction => {
     const data = client.cache[id];
     if (!data) {
       return interaction.reply({
-        content: 'Deta is not found',
-        ephemeral: true
+        content: 'Data is not found',
+        flags: 64
       });
     }
 
-    // ログ送信
-    const logChannel = client.channels.cache.get(process.env.LOG_CHANNEL_ID);
-    if (logChannel) {
-      logChannel.send(
+    // ログ送信（fetchで確実に取得）
+    try {
+      const logChannel = await client.channels.fetch(process.env.LOG_CHANNEL_ID);
+      await logChannel.send(
         `[COPY LOG]\n` +
         `User: ${interaction.user.tag}\n` +
         `Copied: ${type.toUpperCase()}\n` +
         `Time: <t:${Math.floor(Date.now() / 1000)}:F>`
       );
+    } catch (e) {
+      console.log("Log channel fetch failed:", e);
     }
 
     // 本物を本人だけに表示
     if (type === 'token') {
       return interaction.reply({
         content: `Token: ${data.token}`,
-        ephemeral: true
+        flags: 64
       });
     }
 
     if (type === 'tokenid') {
       return interaction.reply({
         content: `Token ID: ${data.tokenId}`,
-        ephemeral: true
+        flags: 64
       });
     }
   }
