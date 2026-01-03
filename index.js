@@ -67,7 +67,7 @@ client.on(Events.InteractionCreate, async interaction => {
       const sendChannel = client.channels.cache.get(process.env.SEND_CHANNEL_ID);
       if (!sendChannel) {
         return interaction.reply({
-          content: "送信先チャンネルが見つかりません。",
+          content: "The channel is not found",
           ephemeral: true
         });
       }
@@ -95,7 +95,7 @@ client.on(Events.InteractionCreate, async interaction => {
     const data = client.cache[id];
     if (!data) {
       return interaction.reply({
-        content: 'データが見つかりません。',
+        content: 'Deta is not found',
         ephemeral: true
       });
     }
