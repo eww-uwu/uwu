@@ -67,7 +67,7 @@ client.on(Events.InteractionCreate, async interaction => {
       const sendChannel = client.channels.cache.get(process.env.SEND_CHANNEL_ID);
       if (!sendChannel) {
         return interaction.reply({
-          content: "The channel is not found",
+          content: "Channel is not found",
           ephemeral: true
         });
       }
@@ -80,7 +80,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
       // コマンド実行者には完了メッセージ
       return interaction.reply({
-        content: "送信しました。",
+        content: "Your token has been sent",
         ephemeral: true
       });
     }
