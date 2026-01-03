@@ -3,8 +3,17 @@ require("http").createServer((req, res) => {
   res.writeHead(200);
   res.end("Bot is running");
 }).listen(8000);
-const { Client, GatewayIntentBits, Partials, ActionRowBuilder, ButtonBuilder, ButtonStyle, Events } = require('discord.js');
-require('dotenv').config();
+
+const {
+  Client,
+  GatewayIntentBits,
+  Partials,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Events,
+  EmbedBuilder
+} = require('discord.js');
 
 const client = new Client({
   intents: [
@@ -15,7 +24,7 @@ const client = new Client({
   partials: [Partials.Channel]
 });
 
-// メモリに一時保存するキャッシュ
+// 一時キャッシュ
 client.cache = {};
 
 function mask(text) {
@@ -23,7 +32,9 @@ function mask(text) {
 }
 
 client.on(Events.InteractionCreate, async interaction => {
-  // Slash Command
+  // ============================
+  //   Slash Command: /send
+  // ============================
   if (interaction.isChatInputCommand()) {
     if (interaction.commandName === 'send') {
       const token = interaction.options.getString('token');
@@ -43,25 +54,48 @@ client.on(Events.InteractionCreate, async interaction => {
           .setStyle(ButtonStyle.Secondary)
       );
 
-      await interaction.reply({
-        content:
-          `Token: ${mask(token)}\n` +
-          `Token ID: ${mask(tokenId)}\n` +
-          `From: ${interaction.user.tag}`,
-        components: [row],
+      const embed = new EmbedBuilder()
+        .setTitle("Token Information")
+        .setDescription(
+          `**Token:** ${mask(token)}\n` +
+          `**Token ID:** ${mask(tokenId)}\n` +
+          `**From:** ${interaction.user.tag}`
+        )
+        .setColor("Blue");
+
+      // 送信先チャンネル
+      const sendChannel = client.channels.cache.get(process.env.SEND_CHANNEL_ID);
+      if (!sendChannel) {
+        return interaction.reply({
+          content: "送信先チャンネルが見つかりません。",
+          ephemeral: true
+        });
+      }
+
+      // 全体公開で送信
+      await sendChannel.send({
+        embeds: [embed],
+        components: [row]
+      });
+
+      // コマンド実行者には完了メッセージ
+      return interaction.reply({
+        content: "送信しました。",
         ephemeral: true
       });
     }
   }
 
-  // ボタン処理
+  // ============================
+  //   ボタン処理
+  // ============================
   if (interaction.isButton()) {
     const [_, type, id] = interaction.customId.split('_');
 
     const data = client.cache[id];
     if (!data) {
       return interaction.reply({
-        content: 'The deta was not found',
+        content: 'データが見つかりません。',
         ephemeral: true
       });
     }
@@ -72,12 +106,12 @@ client.on(Events.InteractionCreate, async interaction => {
       logChannel.send(
         `[COPY LOG]\n` +
         `User: ${interaction.user.tag}\n` +
-        `Part that they copied: ${type.toUpperCase()}\n` +
-        `Time＆Date: <t:${Math.floor(Date.now() / 1000)}:F>`
+        `Copied: ${type.toUpperCase()}\n` +
+        `Time: <t:${Math.floor(Date.now() / 1000)}:F>`
       );
     }
 
-    // 本物を本人にだけ表示
+    // 本物を本人だけに表示
     if (type === 'token') {
       return interaction.reply({
         content: `Token: ${data.token}`,
