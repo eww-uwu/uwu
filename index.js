@@ -11,8 +11,7 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Events,
-  EmbedBuilder
+  Events
 } = require('discord.js');
 
 const client = new Client({
@@ -24,119 +23,62 @@ const client = new Client({
   partials: [Partials.Channel]
 });
 
-// 一時キャッシュ
-client.cache = {};
-
-function mask(text) {
-  return '*'.repeat(text.length);
-}
-
+// ============================
+//   /send コマンド
+// ============================
 client.on(Events.InteractionCreate, async interaction => {
-  // ============================
-  //   Slash Command: /send
-  // ============================
-  if (interaction.isChatInputCommand()) {
-    if (interaction.commandName === 'send') {
-      const token = interaction.options.getString('token');
-      const tokenId = interaction.options.getString('token_id');
+  if (!interaction.isChatInputCommand()) return;
 
-      const uniqueId = interaction.id;
-      client.cache[uniqueId] = { token, tokenId };
+  if (interaction.commandName === 'send') {
+    const token = interaction.options.getString('token');
+    const tokenId = interaction.options.getString('token_id');
 
-      const row = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
-          .setCustomId(`copy_token_${uniqueId}`)
-          .setLabel('Copy Token')
-          .setStyle(ButtonStyle.Primary),
-        new ButtonBuilder()
-          .setCustomId(`copy_tokenid_${uniqueId}`)
-          .setLabel('Copy Token ID')
-          .setStyle(ButtonStyle.Secondary)
-      );
+    const message = `**${interaction.user.tag}** has sent the token`;
 
-      const embed = new EmbedBuilder()
-        .setTitle("Token Information")
-        .setDescription(
-          `**Token:** ${mask(token)}\n` +
-          `**Token ID:** ${mask(tokenId)}\n` +
-          `**From:** ${interaction.user.tag}`
-        )
-        .setColor("Blue");
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId('show_token')
+        .setLabel('Show it')
+        .setStyle(ButtonStyle.Primary)
+    );
 
-      // fetch で確実にチャンネル取得
-      let sendChannel;
+    await interaction.reply({
+      content: message,
+      components: [row]
+    });
+
+    // ボタン押されたとき
+    const filter = i => i.customId === 'show_token' && i.user.id === interaction.user.id;
+    const collector = interaction.channel.createMessageComponentCollector({ filter, time: 60000 });
+
+    collector.on('collect', async i => {
+
+      // ログ送信
       try {
-        sendChannel = await client.channels.fetch(process.env.SEND_CHANNEL_ID);
+        const logChannel = await client.channels.fetch(process.env.LOG_CHANNEL_ID);
+        await logChannel.send(
+          `[COPY LOG]\n` +
+          `User: ${i.user.tag}\n` +
+          `Copied: TOKEN + TOKEN ID\n` +
+          `Channel: #${i.channel?.name || 'Unknown'}\n` +
+          `Time: <t:${Math.floor(Date.now() / 1000)}:F>`
+        );
       } catch (e) {
-        return interaction.reply({
-          content: "Channel is not found",
-          flags: 64
-        });
+        console.log("Log channel fetch failed:", e);
       }
 
-// 全体公開で送信（送信したメッセージを取得）
-const sentMessage = await sendChannel.send({
-  embeds: [embed],
-  components: [row]
-});
-
-// メッセージリンクをキャッシュに保存
-client.cache[uniqueId].messageLink =
-  `https://discord.com/channels/${interaction.guildId}/${sendChannel.id}/${sentMessage.id}`;
-
-      // コマンド実行者には完了メッセージ（reply は1回だけ）
-      return interaction.reply({
-        content: "Your token has been sent",
-        flags: 64
+      // 本物を本人だけに表示
+      await i.reply({
+        content: `**Token:** ${token}\n**Token ID:** ${tokenId}`,
+        ephemeral: true
       });
-    }
-  }
-
-  // ============================
-  //   ボタン処理
-  // ============================
-  if (interaction.isButton()) {
-    const [_, type, id] = interaction.customId.split('_');
-
-    const data = client.cache[id];
-    if (!data) {
-      return interaction.reply({
-        content: 'Data is not found',
-        flags: 64
-      });
-    }
-
-// ログ送信（fetchで確実に取得）
-try {
-  const logChannel = await client.channels.fetch(process.env.LOG_CHANNEL_ID);
-await logChannel.send(
-  `[COPY LOG]\n` +
-  `User: ${interaction.user.tag}\n` +
-  `Copied: ${type.toUpperCase()}\n` +
-  `Message: ${data.messageLink}\n` +   // ← 追加
-  `Time: <t:${Math.floor(Date.now() / 1000)}:F>`
-);
-} catch (e) {
-  console.log("Log channel fetch failed:", e);
-}
-
-    // 本物を本人だけに表示
-    if (type === 'token') {
-      return interaction.reply({
-        content: `Token: ${data.token}`,
-        flags: 64
-      });
-    }
-
-    if (type === 'tokenid') {
-      return interaction.reply({
-        content: `Token ID: ${data.tokenId}`,
-        flags: 64
-      });
-    }
+    });
   }
 });
 
+// ============================
+//   Bot Ready
+// ============================
 client.once(Events.ClientReady, () => {
   console.log(`Logged in: ${client.user.tag}`);
 });
