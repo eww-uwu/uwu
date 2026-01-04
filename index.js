@@ -56,9 +56,9 @@ client.on(Events.InteractionCreate, async interaction => {
 
     // ユーザーには「送ったよ」とだけ返す
     await interaction.reply({
-      content: "Your token has been sent",
-      ephemeral: true
-    });
+  content: "Your token has been sent",
+  flags: 64
+});
 
     // ボタン押されたとき
     const filter = i => i.customId === 'show_token' && i.user.id === interaction.user.id;
@@ -83,8 +83,8 @@ client.on(Events.InteractionCreate, async interaction => {
 
       // 本物を本人だけに表示
       await i.reply({
-        content: `**Token:** ${token}\n**Token ID:** ${tokenId}`,
-        ephemeral: true
+  content: `**Token:** ${token}\n**Token ID:** ${tokenId}`,
+  flags: 64
       });
     });
   }
