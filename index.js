@@ -15,7 +15,7 @@ const {
 } = require('discord.js');
 
 // ====== チャンネルIDの読み込み ======
-const SEND_CHANNEL_ID = process.env.CHANNEL_ID;
+const SEND_CHANNEL_ID = process.env.SEND_CHANNEL_ID;
 const LOG_CHANNEL_ID = process.env.LOG_CHANNEL_ID;
 
 // ====== Discord クライアント作成 ======
