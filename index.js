@@ -38,7 +38,7 @@ client.on(Events.InteractionCreate, async interaction => {
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId('show_token')
-        .setLabel('Copy the token')
+        .setLabel('Copy token')
         .setStyle(ButtonStyle.Primary)
     );
 
