@@ -24,12 +24,6 @@ const client = new Client({
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent
-
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
   ],
   partials: [Partials.Channel]
 });
@@ -66,13 +60,14 @@ client.on(Events.InteractionCreate, async interaction => {
 
       // ログ送信
       try {
-        const logChannel = await client.channels.fetch(process.env.LOG_CHANNEL_ID);
+        const logChannel = await client.channels.fetch(LOG_CHANNEL_ID);
+        const unix = Math.floor(Date.now() / 1000);
+
         await logChannel.send(
-          `[COPY LOG]\n` +
+          `[Copy Log]\n` +
           `User: ${i.user.tag}\n` +
-          `Copied: TOKEN + TOKEN ID\n` +
-          `Channel: #${i.channel?.name || 'Unknown'}\n` +
-          `Time: <t:${Math.floor(Date.now() / 1000)}:F>`
+          `Link: ${i.message.url}\n` +
+          `Time: <t:${unix}:F>`
         );
       } catch (e) {
         console.log("Log channel fetch failed:", e);
