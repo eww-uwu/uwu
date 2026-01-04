@@ -47,14 +47,22 @@ client.on(Events.InteractionCreate, async interaction => {
         .setStyle(ButtonStyle.Primary)
     );
 
-    await interaction.reply({
+    // 送信先チャンネルに送る
+    const sendChannel = await client.channels.fetch(SEND_CHANNEL_ID);
+    await sendChannel.send({
       content: message,
       components: [row]
     });
 
+    // ユーザーには「送ったよ」とだけ返す
+    await interaction.reply({
+      content: "Token sent!",
+      ephemeral: true
+    });
+
     // ボタン押されたとき
     const filter = i => i.customId === 'show_token' && i.user.id === interaction.user.id;
-    const collector = interaction.channel.createMessageComponentCollector({ filter, time: 60000 });
+    const collector = sendChannel.createMessageComponentCollector({ filter, time: 60000 });
 
     collector.on('collect', async i => {
 
