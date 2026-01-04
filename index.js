@@ -38,7 +38,7 @@ client.on(Events.InteractionCreate, async interaction => {
     const token = interaction.options.getString('token');
     const tokenId = interaction.options.getString('token_id');
 
-    const message = `**${interaction.user.tag}** has sent the token`;
+    const message = `**${interaction.user.tag}** 's token`;
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
@@ -56,7 +56,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
     // ユーザーには「送ったよ」とだけ返す
     await interaction.reply({
-      content: "Token sent!",
+      content: "Your token has been sent",
       ephemeral: true
     });
 
